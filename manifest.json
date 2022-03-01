@@ -1,0 +1,20 @@
+{
+  "name": "rad-dude",
+  "id": "1077975285276991020",
+  "api": "1.0.0",
+  "main": "code.js",
+  "editorType": ["figma"],
+  "menu": [
+    {
+      "name": "Select and apply border radius",
+      "command": "radius",
+      "parameters": [
+        {
+          "name": "Radius",
+          "key": "radius",
+          "description": "Enter a border radius, using capsule tokens"
+        }
+      ]
+    }
+  ]
+}
