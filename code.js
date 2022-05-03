@@ -1,6 +1,3 @@
-// TODO
-// - Change radius on the selected node
-// - Change radius on the selected node and it's children only if radius is already applied (it's >0)
 // Check that the input is a valid number
 function setSuggestionsForNumberInput(query, result, completions) {
     if (query === "") {
@@ -16,7 +13,7 @@ function setSuggestionsForNumberInput(query, result, completions) {
 // The 'input' event listens for text change in the Quick Actions box after a plugin is 'Tabbed' into.
 figma.parameters.on("input", ({ query, key, result }) => {
     if (figma.currentPage.selection.length === 0) {
-        result.setError("Please select one or mode nodes first");
+        result.setError("Please select one or more layers first");
         return;
     }
     switch (key) {
@@ -40,11 +37,37 @@ figma.on("run", ({ parameters }) => {
     figma.closePlugin();
 });
 function changeRadius(parameters) {
+    // add functionality to catch errors and parse typed values
     const radius = convertTokenToInt(parameters.radius);
     for (const node of figma.currentPage.selection) {
-        if (node.type === "RECTANGLE") {
-            node.cornerRadius = radius;
-        }
+        // Recursive function, on selection apply radius to parents and children. The function will call itself to be applied to that group of nodes applied to that group of nodes.
+        // Define the property names you want to check
+        const radii = [
+            "topLeftRadius",
+            "topRightRadius",
+            "bottomRightRadius",
+            "bottomLeftRadius",
+        ];
+        const applyRadius = (nodes, radius) => {
+            // console.log(radius);
+            nodes.forEach((n) => {
+                // Check each property for the current node
+                radii.forEach((r) => {
+                    if (n[r] && n[r] > 0) {
+                        // If the node has the property and is > 0
+                        n[r] = radius; // change it to our value
+                    }
+                });
+                let children = n.children;
+                if (children && children.length > 0) {
+                    applyRadius(children, radius);
+                }
+            });
+        };
+        applyRadius(figma.currentPage.selection, radius);
+        figma.notify("Radius changed to " + radius, {
+            timeout: 2000,
+        });
     }
 }
 const convertTokenToInt = (token) => {

@@ -6,13 +6,13 @@
   "editorType": ["figma"],
   "menu": [
     {
-      "name": "Select and apply border radius",
+      "name": "Border radius to selection if > 0",
       "command": "radius",
       "parameters": [
         {
-          "name": "Radius",
+          "name": "enter radius ◜◝◞◟ ◤ ◥ ◢ ◣",
           "key": "radius",
-          "description": "Enter a border radius, using capsule tokens"
+          "description": "Enter a border radius (e.g. 14), or select from below using capsule tokens"
         }
       ]
     }
