@@ -4,6 +4,10 @@ function setSuggestionsForNumberInput(query, result, completions) {
         result.setSuggestions(completions !== null && completions !== void 0 ? completions : []);
     }
     else {
+        if (isNaN(+query)) {
+            result.setError("🛑 Invalid input, provide a number e.g. 14 🛑");
+            return;
+        }
         const filteredCompletions = completions
             ? completions.filter((s) => s.includes(query) && s !== query)
             : [];
@@ -13,7 +17,7 @@ function setSuggestionsForNumberInput(query, result, completions) {
 // The 'input' event listens for text change in the Quick Actions box after a plugin is 'Tabbed' into.
 figma.parameters.on("input", ({ query, key, result }) => {
     if (figma.currentPage.selection.length === 0) {
-        result.setError("Please select one or more layers first");
+        result.setError("🛑 Please select one or more layers first 🛑");
         return;
     }
     switch (key) {
@@ -33,12 +37,13 @@ figma.parameters.on("input", ({ query, key, result }) => {
 });
 // When the user presses Enter after inputting all parameters, the 'run' event is fired.
 figma.on("run", ({ parameters }) => {
-    changeRadius(parameters);
+    // sanitize the input
+    const radius = convertInputToRadius(parameters.radius);
+    changeRadius(radius);
     figma.closePlugin();
 });
-function changeRadius(parameters) {
+function changeRadius(radius) {
     // add functionality to catch errors and parse typed values
-    const radius = convertTokenToInt(parameters.radius);
     for (const node of figma.currentPage.selection) {
         // Recursive function, on selection apply radius to parents and children. The function will call itself to be applied to that group of nodes applied to that group of nodes.
         // Define the property names you want to check
@@ -65,11 +70,24 @@ function changeRadius(parameters) {
             });
         };
         applyRadius(figma.currentPage.selection, radius);
-        figma.notify("Radius changed to " + radius, {
+        figma.notify("Radius changed to " + radius + "px", {
             timeout: 2000,
         });
     }
 }
+const convertInputToRadius = (input) => {
+    // check if it's a valid token first
+    if (isValidToken(input)) {
+        //if token is valid we return radius
+        return convertTokenToInt(input);
+    }
+    //if the user input is a number return that
+    return +input;
+};
+const isValidToken = (token) => {
+    const pattern = /\(([^)]+)\)/;
+    return pattern.test(token);
+};
 const convertTokenToInt = (token) => {
     const pattern = /\(([^)]+)\)/;
     const parsedToken = token.match(pattern)[1].replace("px", "");
