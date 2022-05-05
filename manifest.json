@@ -10,9 +10,9 @@
       "command": "radius",
       "parameters": [
         {
-          "name": "enter radius ◜◝◞◟ ◤ ◥ ◢ ◣",
+          "name": "Enter value (e.g. 14)",
           "key": "radius",
-          "description": "Enter a border radius (e.g. 14), or select from below using capsule tokens"
+          "description": "Enter a border radius (e.g. 14), or select below capsule tokens"
         }
       ]
     }
