@@ -1,3 +1,11 @@
+// Recursive function, on selection apply radius to parents and children. The function will call itself to be applied to that group of nodes applied to that group of nodes.
+// Define the property names you want to check
+const RADII = [
+    "topLeftRadius",
+    "topRightRadius",
+    "bottomRightRadius",
+    "bottomLeftRadius",
+];
 // Check that the input is a valid number
 function setSuggestionsForNumberInput(query, result, completions) {
     if (query === "") {
@@ -22,14 +30,14 @@ figma.parameters.on("input", ({ query, key, result }) => {
     }
     switch (key) {
         case "radius":
-            const radii = [
+            const radiiTokens = [
                 "$2xs (2px)",
                 "$xs (4px)",
                 "$sm (8px)",
                 "$md (16px)",
                 "$xl (99px)",
             ];
-            setSuggestionsForNumberInput(query, result, radii);
+            setSuggestionsForNumberInput(query, result, radiiTokens);
             break;
         default:
             return;
@@ -37,43 +45,49 @@ figma.parameters.on("input", ({ query, key, result }) => {
 });
 // When the user presses Enter after inputting all parameters, the 'run' event is fired.
 figma.on("run", ({ parameters }) => {
-    // sanitize the input
     const radius = convertInputToRadius(parameters.radius);
-    changeRadius(radius);
-    figma.closePlugin();
-});
-function changeRadius(radius) {
-    // add functionality to catch errors and parse typed values
-    for (const node of figma.currentPage.selection) {
-        // Recursive function, on selection apply radius to parents and children. The function will call itself to be applied to that group of nodes applied to that group of nodes.
-        // Define the property names you want to check
-        const radii = [
-            "topLeftRadius",
-            "topRightRadius",
-            "bottomRightRadius",
-            "bottomLeftRadius",
-        ];
-        const applyRadius = (nodes, radius) => {
-            // console.log(radius);
-            nodes.forEach((n) => {
-                // Check each property for the current node
-                radii.forEach((r) => {
-                    if (n[r] && n[r] > 0) {
-                        // If the node has the property and is > 0
-                        n[r] = radius; // change it to our value
-                    }
-                });
-                let children = n.children;
-                if (children && children.length > 0) {
-                    applyRadius(children, radius);
-                }
-            });
-        };
-        applyRadius(figma.currentPage.selection, radius);
-        figma.notify("Radius changed to " + radius + "px", {
-            timeout: 2000,
+    const convertedCount = applyRadius(figma.currentPage.selection, radius);
+    // write a function that checks radius and runs figma.notify based on that
+    if (convertedCount === 0) {
+        figma.notify("🙈 No radius detected, nothing has been changed", {
+            timeout: 5000,
+        });
+        figma.closePlugin();
+    }
+    else {
+        figma.notify(`🏄‍♂️ Radius changed to ${radius}px on ${convertedCount} layer(s) & sublayer(s)`, {
+            timeout: 5000,
         });
     }
+    figma.closePlugin();
+});
+const applyRadius = (nodes, radius) => {
+    let convertedCount = 0;
+    nodes.forEach((n) => {
+        // For every note selected we count if radius has changed
+        let isNodeRadiusConverted = false;
+        // Check each property for the current node
+        RADII.forEach((r) => {
+            if (n[r] && n[r] > 0) {
+                // If the node has the property and is > 0
+                n[r] = radius; // change it to our value
+                isNodeRadiusConverted = true;
+            }
+        });
+        if (isNodeRadiusConverted) {
+            convertedCount++;
+        }
+        let children = n.children;
+        if (children && children.length > 0) {
+            convertedCount += applyRadius(children, radius);
+        }
+    });
+    return convertedCount;
+};
+function changeRadius(radius) {
+    // add functionality to catch errors and parse typed values
+    applyRadius(figma.currentPage.selection, radius);
+    return radius;
 }
 const convertInputToRadius = (input) => {
     // check if it's a valid token first

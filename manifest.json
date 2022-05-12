@@ -12,7 +12,7 @@
         {
           "name": "Enter value (e.g. 14)",
           "key": "radius",
-          "description": "Enter a border radius (e.g. 14), or select below capsule tokens"
+          "description": "Enter a border radius (e.g. 14), or select below capsule token"
         }
       ]
     }
