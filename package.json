@@ -1,5 +1,14 @@
 {
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c --watch"
+  },
   "devDependencies": {
-    "@figma/plugin-typings": "^1.42.1"
+    "@figma/plugin-typings": "^1.42.1",
+    "typescript": "^4.6.4",
+    "@rollup/plugin-commonjs": "^19.0.1",
+    "@rollup/plugin-typescript": "^8.2.3",
+    "rollup": "^2.53.3",
+    "rollup-plugin-terser": "^7.0.2"
   }
 }

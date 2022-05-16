@@ -2,7 +2,7 @@
   "name": "rad-dude",
   "id": "1077975285276991020",
   "api": "1.0.0",
-  "main": "code.js",
+  "main": "dist/index.js",
   "editorType": ["figma"],
   "menu": [
     {

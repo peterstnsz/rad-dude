@@ -1,57 +1,4 @@
-// Recursive function, on selection apply radius to parents and children. The function will call itself to be applied to that group of nodes applied to that group of nodes.
-// Define the property names you want to check
-const RADII = [
-  "topLeftRadius",
-  "topRightRadius",
-  "bottomRightRadius",
-  "bottomLeftRadius",
-];
-
-// Check that the input is a valid number
-function setSuggestionsForNumberInput(
-  query: string,
-  result: SuggestionResults,
-  completions?: string[]
-) {
-  if (query === "") {
-    result.setSuggestions(completions ?? []);
-  } else {
-    if (isNaN(+query)) {
-      result.setError("🛑 Invalid input, provide a number e.g. 14 🛑");
-      return;
-    }
-    const filteredCompletions = completions
-      ? completions.filter((s) => s.includes(query) && s !== query)
-      : [];
-    result.setSuggestions([query, ...filteredCompletions]);
-  }
-}
-
-// The 'input' event listens for text change in the Quick Actions box after a plugin is 'Tabbed' into.
-figma.parameters.on("input", ({ query, key, result }: ParameterInputEvent) => {
-  if (figma.currentPage.selection.length === 0) {
-    result.setError("🛑 Please select one or more layers first 🛑");
-    return;
-  }
-
-  switch (key) {
-    case "radius":
-      const radiiTokens = [
-        "$2xs (2px)",
-        "$xs (4px)",
-        "$sm (8px)",
-        "$md (16px)",
-        "$xl (99px)",
-      ];
-      setSuggestionsForNumberInput(query, result, radiiTokens);
-      break;
-    default:
-      return;
-  }
-});
-
-// When the user presses Enter after inputting all parameters, the 'run' event is fired.
-figma.on("run", ({ parameters }: RunEvent) => {
+export function handleRun({ parameters }: RunEvent) {
   const radius = convertInputToRadius(parameters.radius);
   const convertedCount = applyRadius(figma.currentPage.selection, radius);
   // write a function that checks radius and runs figma.notify based on that
@@ -69,9 +16,15 @@ figma.on("run", ({ parameters }: RunEvent) => {
     );
   }
   figma.closePlugin();
-});
+}
 
 const applyRadius = (nodes, radius) => {
+  const RADII = [
+    "topLeftRadius",
+    "topRightRadius",
+    "bottomRightRadius",
+    "bottomLeftRadius",
+  ];
   let convertedCount = 0;
   nodes.forEach((n) => {
     // For every note selected we count if radius has changed
