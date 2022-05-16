@@ -51,13 +51,6 @@ const applyRadius = (nodes, radius) => {
   return convertedCount;
 };
 
-function changeRadius(radius: number) {
-  // add functionality to catch errors and parse typed values
-
-  applyRadius(figma.currentPage.selection, radius);
-  return radius;
-}
-
 const convertInputToRadius = (input: string) => {
   // check if it's a valid token first
   if (isValidToken(input)) {
